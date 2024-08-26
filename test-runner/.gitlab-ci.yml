@@ -1,0 +1,34 @@
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/tms-runner-test
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - delivery
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - echo "Start build job"
+    - sh build-script.sh
+
+test-job:
+  stage: test
+  script:
+    - echo "Start test job"
+    - sh test-script.sh
+
+delivery-job:
+  stage: delivery
+  script:
+    - echo "Start delivery job"
+    - sh delivery-script.sh
+
+trigger-webapp-job:
+  stage: trigger
+  script:
+    - 'curl --request POST --form token=$CI_JOB_TOKEN --form ref=main "http://localhost/api/v4/projects/4/trigger/pipeline"'
+  needs:
+    - delivery-job
+

@@ -1,0 +1,44 @@
+variables:
+  GIT_STRATEGY: fetch
+  GIT_CLEAN_FLAGS: none
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_NAME
+
+  ARTIFACT_WEBAPP_PATH: '../.artifacts/webapp' 
+  ARTIFACT_INVENTORY_PATH: '../.artifacts/ansible/hosts' 
+
+stages:
+  - test
+  - run
+
+get-inventory-job:
+  stage: .pre
+  allow_failure: false
+  script:
+    - echo "Try to copy inventory file from the Terraform artefacts, if exists"
+    - cp -r ${ARTIFACT_INVENTORY_PATH} ./environments/develop/
+
+get-webapp-job:
+  stage: .pre
+  allow_failure: true
+  script:
+    - echo "Try to copy www folder from the Webapp artefacts, if exists"
+    - cp -r ${ARTIFACT_WEBAPP_PATH} ./roles/apache/files/www
+
+test-inventory-job:
+  stage: test
+  script:
+    - echo "Validate and retrieve information about the inventory"
+    - ansible-inventory --list
+
+test-hosts-job:
+  stage: test
+  script:
+    - echo "Check the connectivity of all the hosts in the inventory"
+    - ansible -m ping all
+
+run-playbook-job:
+  stage: run
+  script:
+    - echo "Run the ansible playbook"
+    - ansible-playbook playbook.yml
+

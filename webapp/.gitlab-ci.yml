@@ -1,0 +1,36 @@
+variables:
+  GIT_STRATEGY: fetch
+  GIT_CLEAN_FLAGS: none
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_NAME
+
+  ARTIFACT_WEBAPP_PATH: '../.artifacts/webapp' 
+
+stages:
+  - build
+  - deploy
+  - trigger
+
+build-job:
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - echo "Compile complete."
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Copy webapp www folder to the artifact storage"
+    - |
+      if [[ ! -d ${ARTIFACT_WEBAPP_PATH} ]]
+      then
+        mkdir -p ${ARTIFACT_WEBAPP_PATH}
+      fi
+    - cp -r ./www ${ARTIFACT_WEBAPP_PATH}
+
+trigger-ansible-job:
+  stage: trigger
+  script:
+    - echo "Run ansible pipeline"
+    - "curl -X POST --fail -F token=glptt-ec408fb29364760afbd30cedaa006af7323c2ac7 -F ref=main http://localhost/api/v4/projects/3/trigger/pipeline"
+  needs:
+    - deploy-job

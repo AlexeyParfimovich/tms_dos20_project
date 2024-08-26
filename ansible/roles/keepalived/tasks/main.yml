@@ -1,0 +1,24 @@
+- name: Installs keepalived
+  apt:
+    name: keepalived
+    state: present
+    update_cache: yes
+
+- name: Push keepalived notify script
+  copy:
+    src: keepalived-notify.sh
+    dest: /etc/keepalived/
+    mode: '0744'
+    owner: root
+    group: root
+
+- name: Pushes configuration
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: '0644'
+    owner: root
+    group: root
+  notify: restart_keepalived
+
+

@@ -1,0 +1,51 @@
+variables:
+  GIT_STRATEGY: fetch
+  GIT_CLEAN_FLAGS: none
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_NAME
+
+stages: 
+  - init
+  - validate
+  - plan
+  - apply
+  - trigger
+
+pre-job:
+  stage: .pre
+  allow_failure: true
+  script:
+    - echo "Try to destroy Terraform resources is exists"
+    - terraform destroy -auto-approve
+
+init-job:
+  stage: init
+  script:
+    - echo "Initialize a Terraform workspace"
+    - terraform init
+
+validate-job:
+  stage: validate
+  script:
+    - echo "Verify whether Terraform configuration syntax is valid and internally consistent"
+    - terraform validate
+
+plan-job:
+  stage: plan
+  script:
+    - echo "Create a Terraform execution plan"
+    - terraform plan -out=test-plan
+
+apply-job:
+  stage: apply
+  script:
+    - echo "Apply changes to the infrastructure environment"
+    - terraform apply -auto-approve "test-plan"
+
+trigger-webapp-job:
+  stage: trigger
+  script:
+    - echo "Run webapp build pipeline"
+    - "curl -X POST --fail -F token=glptt-68e41b9176846a2208caaa6c7c03aca864d24c13 -F ref=main http://localhost/api/v4/projects/4/trigger/pipeline"
+  needs:
+    - apply-job
+

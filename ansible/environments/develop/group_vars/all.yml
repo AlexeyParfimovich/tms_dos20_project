@@ -1,0 +1,9 @@
+ansible_ssh_user: vmuser
+ansible_ssh_password: p@ssw0rd
+
+ansible_become: yes
+ansible_become_user: root
+ansible_become_method: sudo
+ansible_become_pass: p@ssw0rd
+
+zabbix_server_ip: 192.168.122.50

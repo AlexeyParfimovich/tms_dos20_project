@@ -1,0 +1,20 @@
+---
+- name: Playbook to install and configure Apache web-server
+  hosts: vm_web
+  roles:
+    - role: apache
+
+- name: Install HAProxy load balancer
+  hosts: vm_haproxy
+  roles:
+    - role: haproxy
+
+- name: Install keepalived service
+  hosts: vm_keepalived
+  roles:
+    - role: keepalived
+
+- name: Install zabbix agent
+  hosts: vm_all
+  roles:
+    - role: zabbix_agent

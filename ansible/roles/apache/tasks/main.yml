@@ -1,0 +1,35 @@
+- name: Installs apache2
+  apt:
+    name:
+      - php
+      - php-curl
+      - apache2
+    state: present
+    update_cache: true
+
+- name: Push TMS site app files
+  copy:
+    src:  www
+    dest: /var/
+  tags: parentdir
+
+- name: Push TMS virtual host configuration
+  copy:
+    src: tms.conf
+    dest: /etc/apache2/sites-available/
+    mode: '0644'
+
+- name: Check that config is valid
+  command: apachectl configtest
+  register: result
+#  ignore_errors: true
+
+- name: Deactivates the default virtualhost
+  command: a2dissite 000-default
+
+- name: Deactivates the default-ssl virtualhost
+  command: a2dissite default-ssl
+
+- name: Activates TMS virtualhost
+  command: a2ensite tms
+  notify: restart_apache

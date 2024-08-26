@@ -1,0 +1,2 @@
+host_metadata: apache
+haproxy_backend_weight: 100

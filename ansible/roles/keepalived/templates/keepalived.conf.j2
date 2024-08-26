@@ -1,0 +1,37 @@
+global_defs {
+  enable_script_security
+}
+
+vrrp_script health_check {
+  script '/bin/nc -z -w 2 127.0.0.1 22'
+  interval 10
+  user nobody
+}
+
+vrrp_instance proxy {
+  state {{keepalived_state}}
+  interface {{keepalived_net_interface}}
+  virtual_router_id {{keepalived_virtual_ip.split('.')[-1]}}
+  
+  priority 50
+  advert_int 2
+	
+{% if keepalived_state == 'BACKUP' %}
+  nopreempt
+{% endif %}
+
+  notify /etc/keepalived/keepalived-notify.sh root
+
+  virtual_ipaddress {
+    {{keepalived_virtual_ip}}/24 dev {{keepalived_net_interface}}
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass {{keepalived_auth_pass}}
+  }
+
+  track_script {
+    health_check
+  }
+}

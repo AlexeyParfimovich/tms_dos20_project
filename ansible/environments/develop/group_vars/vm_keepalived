@@ -1,0 +1,5 @@
+keepalived_state: BACKUP
+keepalived_auth_pass: p@ssw0rd
+keepalived_net_interface: ens3
+keepalived_virtual_ip: 192.168.122.25
+
